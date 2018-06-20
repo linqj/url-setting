@@ -125,7 +125,9 @@
         let shareId = this.shareId ? this.shareId.trim() : null;
         let shareFrom = this.shareFrom ? this.shareFrom.trim() : null;
         let params = {activityId: activityId, channelNo: channelNo, shareId: shareId, shareFrom: shareFrom};
-        this.activity = btoa(JSON.stringify(params))
+        this.activity = btoa(JSON.stringify(params));
+        //生成base64 btoa()   解码atob()
+
       },
       onSubmit() {
         let formItem = document.getElementsByClassName('form-item');
