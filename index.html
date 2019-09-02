@@ -1,30 +1,199 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
-    <title>Title</title>
-    <style>
-        html,body{
-            padding:0;
-            margin:0;
-        }
-        .img{
-            margin:200px auto 0;
-            display:block;
-            width:200px;
-            height:auto;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>横琴-产品url配置</title>
+  <link rel="stylesheet" type="text/css" href="reset.css">
+  <link rel="stylesheet" type="text/css" href="index.css">
+  <script src="jquery-3.3.1.min.js"></script>
 </head>
+
 <body>
-<div><img src="./wec_qt.png" alt="" class="img" onclick="onTo()"></div>
-<script>
-    function onTo(){
-        alert('123456');
-        window.location.href="http://wechat.e-hqins.com/";
-//        window.location.href='http://weixin.qq.com/r/xzvbwzfERWo6rXOg927V';
+  <div class="url">
+    <div class="header">
+      横琴-产品url配置
+    </div>
+    <div class="env">
+      <div class="url-title">环境配置</div>
+    </div>
+    <div class="product">
+      <div class="url-title">活动及产品配置</div>
+      <div class="product-set">
+        <div class="activity-name">
+          <span class="activity-title">活动名称：</span>
+          <input type="text" class="activity-input" placeholder="请输入活动名称">
+        </div>
+        <div class="activity-name">
+          <span class="activity-title">activityId(活动id)：</span>
+          <input type="text" class="activity-input" placeholder="请输入活动id">
+        </div>
+        <div class="activity-name">
+          <span class="activity-title">agent(代理人)：</span>
+          <input type="text" class="activity-input" placeholder="请输入代理人工号">
+        </div>
+        <div class="activity-name">
+          <span class="activity-title">channelNo(渠道号)：</span>
+          <input type="text" class="activity-input" placeholder="请输入渠道号">
+        </div>
+        <div class="activity-name">
+          <span class="activity-title">产品名称：</span>
+          <input type="text" class="activity-input" placeholder="请输入渠道号">
+        </div>
+        <div class="activity-name">
+          <span class="activity-title">产品id：</span>
+          <input type="text" class="activity-input" placeholder="请输入渠道号">
+        </div>
+      </div>
+      <div class="product-content">
+        <div class="product-detail">
+        </div>
+        <div class="submit">
+          <span class="submit-button" onclick="onSubmit()">提交</span>
+          <span class="submit-clear" onclick="onClear()">清除</span>
+        </div>
+      </div>
+    </div>
+    <div class="result">
+      <div class="url-title">配置结果</div>
+    </div>
+  </div>
+  <script>
+    var envList = [];
+    var envApi = 'http://192.168.25.130:9034';
+    var productList = [];
+    var activityId = ''; //活动id
+    var activityName = ''; //活动名称
+    var channelNo = ''; //渠道号
+    var sharePersonId = ''; //分享人ID
+    var sharePersonFrom = ''; //分享来源
+    var agentCode = ''; //代理人工号
+    var productName = '';
+    var productId = '';
+    //  var clickIndex=0;//提交次数
+    $(document).ready(function () {
+      //加载环境参数
+      envList = [{
+          name: 'test环境',
+          env: 'https://hengqinlife-test.e-hqins.com'
+        },
+        {
+          name: 'uat环境',
+          env: 'https://hengqinlife-uat.e-hqins.com'
+        },
+        {
+          name: '生产环境',
+          env: 'https://wechat.e-hqins.com'
+        }
+      ];
+      if (envList.length > 0) {
+        let envParent = $('.env');
+        for (let i = 0; i < envList.length; i++) {
+          let envItem = $("<div class='env-item'></div>");
+          let envItemTitle = $("<span class='env-item-title'></span>").text(envList[i].name);
+          let envItemCon = $("<span class='env-item-input'></span>").text(envList[i].env);
+          envItem.append(envItemTitle, envItemCon);
+          envParent.append(envItem);
+        }
+      }
+    });
+
+    //刷新
+    function onClear() {
+      window.location.reload();
     }
-</script>
+
+    //提交
+    function onSubmit() {
+      //活动名称
+      activityName = $('.activity-input')[0].value;
+      //活动id
+      activityId = $('.activity-input')[1].value;
+      //代理工号
+      agentCode = $('.activity-input')[2].value;
+      //渠道号
+      channelNo = $('.activity-input')[3].value;
+      productName = $('.activity-input')[4].value;
+      productId = $('.activity-input')[5].value;
+      //生成activity
+      let params = {
+        activityId: activityId,
+        channelNo: channelNo,
+        shareId: '',
+        shareFrom: ''
+      };
+      console.log(window.btoa)
+      let activity = window.btoa(JSON.stringify(params));
+      //上传信息
+      console.log(activity)
+      getCreatedProducts(activityName, activity, productName, productId);
+      let activityUrl =
+        "eyJhY3Rpdml0eUlkIjoiMzA2ZHJieCIsImNoYW5uZWxObyI6IjMwNiIsInNoYXJlSWQiOm51bGwsInNoYXJlRnJvbSI6bnVsbH0==";
+      console.log('window.atob(activityUrl)')
+      console.log(window.atob(activity))
+    }
+
+    function getCreatedProducts(activityName, activity, productName, productId) {
+      let paramsObj = {
+        activityId: activityId,
+        activityName: activityName,
+        channelNo: channelNo,
+        agentCode: agentCode,
+        sharePersonId: sharePersonId,
+        sharePersonFrom: sharePersonFrom,
+        // activityProductList: checkedList
+      };
+      if (!activityName) {
+        alert('请输入活动名称');
+        return;
+      }
+      if (!activityId) {
+        alert('请输入活动id');
+        return;
+      }
+      if (!channelNo) {
+        alert('请输入渠道号');
+        return;
+      }
+      if (!agentCode) {
+        alert('请输入代理工号');
+        return;
+      }
+      if (!agentCode) {
+        alert('请输入代理工号');
+        return;
+      }
+      if (!productName) {
+        alert('请输入产品名称');
+        return;
+      }
+      if (!productId) {
+        alert('请输入产品id');
+        return;
+      }
+      //上传数据
+      paramsObj = JSON.stringify(paramsObj);
+      let result = $('.result');
+      result.empty();
+      //活动名称
+      result.append($("<div class='result-title'></div>").text(activityName));
+      //商品名称
+      result.append($("<div class='result-title'></div>").text(productName));
+      envList.forEach(item => {
+        //环境名称
+        result.append($("<div class='result-content-env'></div>").text(item.name));
+        createUrl(item.env, activity, result, productName, productId);
+      })
+
+    }
+    //拼接产品参数
+    function createUrl(env, activity, result, productName, productId) {
+      //活动链接
+      let url =
+        `${env}/productDetailNew?productId=${productId}&agent=${agentCode}&activity=${encodeURIComponent(activity)}`;
+      result.append($("<p class=\"result-item-c\"></p>").text(url));
+    }
+  </script>
 </body>
+
 </html>

@@ -1,2 +1,2 @@
-# url-setting
-原生利用产品id获取活动链接
+# urlSetting-jquery
+利用产品id生成活动链接
